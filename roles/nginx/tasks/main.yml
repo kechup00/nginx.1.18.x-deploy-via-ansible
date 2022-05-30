@@ -27,9 +27,9 @@
       apt: 
         deb: "/home/{{ ansible_env.USER }}/Downloads/{{ package_name }}.deb"
       become: true
-      when: package_check.rc == 1 # if packeage rc = 1 ( no package found) download.
+      when: package_check.rc == 1 # if package rc = 1 ( no package found) download.
 
-    - name: start {{ application01 }}   # Starts the nginx service
+    - name: start {{ application01 }}   # Starts nginx service
       service:
           name: "{{ application01 }}"
           state: started
@@ -46,7 +46,7 @@
         insertafter: "}"
         path: /etc/nginx/conf.d/default.conf
         backup: yes
-      notify:             # <-------------- any changes to the conf file ,the handler will restart the service 
+      notify:             # <-------------- any changes to the conf file ,the handeler will restart the service 
         - Restart nginx-restart  
 
     - name: Creating SSL directory # create cert dir
