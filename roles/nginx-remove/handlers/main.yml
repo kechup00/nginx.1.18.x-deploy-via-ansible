@@ -3,7 +3,7 @@
 - name: Restart nginx-restart
   service:
     name: nginx
-    state: restarted
+    state: stopped
     
 - name: Reload update-ca-certificates 
   shell: |
