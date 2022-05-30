@@ -1,0 +1,30 @@
+---
+
+- block:
+    - name: Check if {{ application02 }} is present in the Local ENV {{ ansible_kernel_version }}
+      apt: 
+        name: "{{ application02 }}"
+        state: latest
+
+    - name: Check {{ application01 }} with-http_stub_status_module # looking for the module name and prints msg if found
+      shell: |
+        {{ application01 }} -V 2>&1 | grep -o with-http_stub_status_module
+      register: output_module
+
+    - name: with-http_stub_status_module
+      debug: msg="Module found !!!"
+      when: output_module.stderr == ""
+    
+    - name: Check {{ application01 }}_status # run a {{ application02 }} command to test if the setting took effect + debugging info
+      shell: |
+        echo "{{ application02 }} https://{{ ansible_lo.ipv4.address }}:8080/basic_status"
+        {{ application02 }} https://{{ ansible_lo.ipv4.address }}:8080/basic_status
+        echo "nestat port"
+        netstat -nat | grep {{ ansible_lo.ipv4.address }}
+        echo "ufw status"
+        sudo ufw status
+      register: output_test
+      
+    - name: Testing setting  
+      debug: 
+        msg: "{{ output_test.stdout_lines }}"

@@ -1,0 +1,13 @@
+---
+
+- name: Restart nginx-restart
+  service:
+    name: nginx
+    state: restarted
+    
+- name: Reload update-ca-certificates 
+  shell: |
+    update-ca-certificates --fresh
+
+
+

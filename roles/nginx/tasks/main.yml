@@ -1,0 +1,78 @@
+---
+
+- block:
+    - name: Check if my_package is installed # look if the package is present
+      shell: |
+        dpkg-query -W {{ application01 }}
+      register: package_check               # register output for conditionals 
+      failed_when: package_check.rc == 0     # if the package rc=0 ( package found ) then fail
+          
+    
+    - name: Show package_check.rc  
+      debug: 
+        msg: 
+          - "{{ package_check.rc }}"
+          - "{{ package_check }}"
+
+    - name: Download my_package
+      get_url: 
+        url: "{{ package_url }}"
+        dest: "/home/{{ ansible_env.USER }}/Downloads/{{ package_name }}.deb"
+        owner: root
+        group: root
+        mode: 0775
+      when: package_check.rc == 1 # if packeage rc = 1 ( no package found) download.
+
+    - name: Install my_package
+      apt: 
+        deb: "/home/{{ ansible_env.USER }}/Downloads/{{ package_name }}.deb"
+      become: true
+      when: package_check.rc == 1 # if packeage rc = 1 ( no package found) download.
+
+    - name: start {{ application01 }}   # Starts the nginx service
+      service:
+          name: "{{ application01 }}"
+          state: started
+          
+    - name: Copy temp of nginx config  and restart nginx if change # create  the conf file from j2 template and copy into the nginx directory
+      template:
+        src: nginx.j2
+        dest: /etc/nginx/main.cfg
+        mode: 0775
+
+    - name: Insert/Update configuration using a local file and validate it # append to the conf file the new settings.
+      blockinfile:
+        block: "{{ lookup('file', '/etc/nginx/main.cfg') }}"
+        insertafter: "}"
+        path: /etc/nginx/conf.d/default.conf
+        backup: yes
+      notify:             # <-------------- any changes to the conf file ,the handler will restart the service 
+        - Restart nginx-restart  
+
+    - name: Creating SSL directory # create cert dir
+      file:
+        path: /etc/nginx/cert
+        state: directory
+
+    - name: Copy SSL certs to nginx  # copy cert and key to nginx certs dir
+      copy:
+        src: cert/
+        dest: /etc/nginx/cert/
+        owner: root
+        group: root
+      notify:
+        - Restart nginx-restart
+        - Reload update-ca-certificates   
+             
+    - name: Copy SSL certs to /usr/local/share/ca-certificates/ # copy  cert to localhost ca-certificate dir 
+      copy:
+        src: cert/nginx-certificate.crt
+        dest: /usr/local/share/ca-certificates/nginx-certificate.crt
+        owner: root
+        group: root
+    - pause:
+        seconds: 3
+      notify: Reload update-ca-certificates
+
+
+

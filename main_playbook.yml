@@ -1,0 +1,37 @@
+---
+
+# Playbooks roles
+
+- name: Run facts  # Run Facts
+  gather_facts: true
+  hosts: all
+  become: true
+  tags: 
+    - facts
+
+- name: Install and configure nginx # Install nginx
+  hosts: all
+  become: true
+  tags: 
+    - install_nginx
+  roles:
+    - nginx
+  ignore_errors: false
+
+- name: Test nginx # Test nginx
+  hosts: web_servers
+  become: true
+  tags: 
+    - test_nginx
+  roles:
+    - nginx-test
+  ignore_errors: false
+
+- name: Remove nginx # Remove nginx
+  hosts: local
+  become: true
+  tags: 
+    - remove_nginx
+  roles:
+    - nginx-remove
+  ignore_errors: true

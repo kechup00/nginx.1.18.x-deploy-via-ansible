@@ -1,0 +1,33 @@
+---
+
+- block:
+    - name: App version 
+      shell: |
+        apt list --installed | grep nginx
+      register: output_version
+    - name: Show app version  
+      debug: 
+        msg: "{{ output_version.stdout_lines }}"
+    - name: Stop {{ app_version }}
+      service:
+          name: nginx
+          state: stopped
+    - name: Remove nginx version {{ app_version }}
+      apt: 
+        name: "{{ app_version }}"
+        state: absent
+        purge: yes
+        autoremove: yes
+        autoclean: yes
+        update_cache: yes
+
+    - name: Remove SSL certs from /usr/local/share/ca-certificates/
+      file:
+        state: absent
+        path: /usr/local/share/ca-certificates/nginx-certificate.crt
+      notify: 
+        - Reload update-ca-certificates
+
+
+
+

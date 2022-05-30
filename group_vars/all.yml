@@ -1,0 +1,15 @@
+---
+package_name: nginx-dbg_1.18.0-1~focal_amd64
+package_url: http://nginx.org/packages/ubuntu/pool/nginx/n/nginx/nginx_1.18.0-1~focal_amd64.deb
+application01: nginx
+application02: curl
+app_version: nginx=1.18*
+app_ip: 127.0.0.1
+app_port: 8080
+app_ssl: ssl
+app_ssl_crt: /etc/nginx/cert/nginx-certificate.crt
+app_ssl_key: /etc/nginx/cert/nginx.key
+status_page_name: basic_status
+status_page_cfg: stub_status on; allow 127.0.0.1; deny all
+app01_access_log_path: /var/log/nginx/access.log
+app01_error_log_path: /var/log/nginx/error.log

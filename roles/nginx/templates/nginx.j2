@@ -1,0 +1,8 @@
+server { 
+        listen {{ app_ip }}:{{ app_port }} {{ app_ssl }}; 
+        ssl_certificate {{ app_ssl_crt }}; 
+        ssl_certificate_key {{ app_ssl_key }}; 
+        error_log {{ app01_access_log_path }} warn;
+        access_log {{ app01_access_log_path }} combined;
+        server_name localhost; location /{{status_page_name}} { {{ status_page_cfg }}; } 
+    }
